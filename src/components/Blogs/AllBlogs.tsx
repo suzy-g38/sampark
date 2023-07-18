@@ -11,6 +11,7 @@ import {
 import { data } from './blogContent';
 import './blogs.css';
 import { BlogCard } from './BlogCard';
+import { useState } from 'react';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -35,9 +36,38 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+interface SavedBlogType {
+  id: number;
+  data: string;
+  image: string;
+}
+
 function AllBlogs() {
   // const navigate = useNavigate();
   const { classes } = useStyles();
+  const [savedBlogs, setSavedBlogs] = useState<SavedBlogType[]>([]);
+
+  const handleAddSaveBlog = (data: SavedBlogType) => {
+    savedBlogs.push(data);
+    localStorage.setItem('sampark-saved-items', JSON.stringify(savedBlogs));
+    setSavedBlogs([...savedBlogs]);
+  };
+
+  const handleDeleteSavedBlog = (id: number) => {
+    const savedBlogList = localStorage.getItem('sampark-saved-items');
+
+    if (savedBlogList) {
+      const parsedBlogsData = JSON.parse(savedBlogList);
+      const updatedBlogsData = parsedBlogsData.filter(
+        (item: { id: number }) => item.id !== id,
+      );
+      localStorage.setItem(
+        'sampark-saved-items',
+        JSON.stringify(updatedBlogsData),
+      );
+      setSavedBlogs(updatedBlogsData);
+    }
+  };
   return (
     <div>
       <Header height={80} mb={50}>
@@ -72,6 +102,8 @@ function AllBlogs() {
             image={item.image as string}
             key={index}
             index={index}
+            handleAddSaveBlog={handleAddSaveBlog}
+            handleDeleteSavedBlog={handleDeleteSavedBlog}
           />
         ))}
       </SimpleGrid>
