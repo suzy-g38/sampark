@@ -53,8 +53,8 @@ const getOrphanageByLocation = async (location: string) => {
 const createOrphanage = async (eventInfo: OrphanageType) => {
   try {
     const orphanage = new OrphanageModel(eventInfo);
-    await orphanage?.save();
-
+    // await orphanage?.save();
+    console.log("ophanage okayyyyyyyyy")
     return orphanage;
   } catch (error) {
     throw new Error(error as string);

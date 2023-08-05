@@ -1,86 +1,151 @@
 import { Schema } from 'express-validator';
 
 const createEventSchema: Schema = {
-  name: {
+  eventName: {
     in: ['body'],
-    isLength: {
-      options: { min: 5 },
-      errorMessage: 'Name must be at least 5 characters long',
-    },
-    notEmpty: {
-      errorMessage: 'Name cannot be empty',
-    },
+    isString: true,
+    notEmpty: true,
   },
-  slug: {
+  eventType: {
     in: ['body'],
-    isString: {
-      errorMessage: 'Invalid slug value',
-    },
-    notEmpty: {
-      errorMessage: 'slug cannot be empty',
-    },
+    isString: true,
+    notEmpty: true,
   },
-  organizer: {
+  eventDate: {
     in: ['body'],
-    isLength: {
-      options: { min: 5 },
-      errorMessage: 'Name must be at least 5 characters long',
-    },
-    notEmpty: {
-      errorMessage: 'organizer cannot be empty',
-    },
+    isDate: true,
+    notEmpty: true,
+  },
+  eventLocation: {
+    in: ['body'],
+    isString: true,
+    notEmpty: true,
   },
   description: {
     in: ['body'],
-    isLength: {
-      options: { min: 15 },
-      errorMessage: 'Name must be at least 15 characters long',
-    },
-    notEmpty: {
-      errorMessage: 'description cannot be empty',
-    },
+    isString: true,
+    notEmpty: true,
   },
-
-  address: {
+  organizingOrganization: {
     in: ['body'],
-    isString: {
-      errorMessage: 'Invalid address value',
-    },
-    notEmpty: {
-      errorMessage: 'address cannot be empty',
-    },
+    isString: true,
+    notEmpty: true,
   },
-  image: {
+  targetAudience: {
+    in: ['body'],
+    isString: true,
+    notEmpty: true,
+  },
+  activities: {
     in: ['body'],
     custom: {
-      options: (value: string) => {
-        if (!/\.(png|jpg|jpeg)$/.test(value)) {
-          throw new Error('Image must have a valid extension png, jpg, jpeg');
+      options: (value) => {
+        if (!Array.isArray(JSON.parse(value))) {
+          throw new Error('Activities must be an array');
+        }
+        JSON.parse(value).forEach((activity:{name:string,description:string}) => {
+          if (!activity.name || !activity.description) {
+            throw new Error('Each activity must have a name and description');
+          }
+        });
+        return true;
+      },
+    },
+    notEmpty: true,
+  },
+  volunteering: {
+    in: ['body'],
+    custom: {
+      options: (value) => {
+        if (typeof JSON.parse(value) !== 'object') {
+          throw new Error('Volunteering must be an object');
+        }
+        if (
+          JSON.parse(value).isVolunteer === false &&
+          JSON.parse(value).contact.length === 0
+        ) {
+          throw new Error(
+            'If volunteering is accepted, a contact information must be provided',
+          );
         }
         return true;
       },
     },
-    notEmpty: {
-      errorMessage: 'image cannot be empty',
+    optional: true,
+  },
+  donations: {
+    in: ['body'],
+    custom: {
+      options: (value) => {
+        if (typeof JSON.parse(value) !== 'object') {
+          throw new Error('Donations must be an object');
+        }
+        if (
+          JSON.parse(value).isDonations === false &&
+          JSON.parse(value).contact.length === 0
+        ) {
+          throw new Error(
+            'If donations are accepted, a contact information must be provided',
+          );
+        }
+        return true;
+      },
+    },
+    optional: true,
+  },
+  logo: {
+    in: ['body'],
+    isString: true,
+    notEmpty: true,
+  },
+  contactInformation: {
+    in: ['body'],
+    custom: {
+      options: (value) => {
+        if (!Array.isArray(JSON.parse(value))) {
+          throw new Error('Contact information must be an array');
+        }
+        JSON.parse(value).forEach((contact:{name:string,link:string}) => {
+          if (!contact.name || !contact.link) {
+            throw new Error('Each contact must have a name and link');
+          }
+        });
+        return true;
+      },
+    },
+    notEmpty: true,
+  },
+  socialMediaLinks: {
+    in: ['body'],
+    optional: true,
+    custom: {
+      options: (value) => {
+        if (typeof JSON.parse(value) !== 'object') {
+          throw new Error('Social media links must be an object');
+        }
+        return true;
+      },
     },
   },
-  date: {
+  registrationLink: {
     in: ['body'],
-    isString: {
-      errorMessage: 'Invalid date value',
+    custom: {
+      options: (value) => {
+        if (typeof JSON.parse(value) !== 'object') {
+          throw new Error('Registration link must be an object');
+        }
+        if (
+          JSON.parse(value).isregistration === false &&
+          JSON.parse(value).link.length === 0
+        ) {
+          throw new Error(
+            'If registration is required, a link must be provided',
+          );
+        }
+        return true;
+      },
     },
-    notEmpty: {
-      errorMessage: 'date cannot be empty',
-    },
-  },
-  duration: {
-    in: ['body'],
-    isNumeric: {
-      errorMessage: 'Invalid duration value',
-    },
-    notEmpty: {
-      errorMessage: 'duration cannot be empty',
-    },
+    notEmpty: true,
   },
 };
 
